@@ -1,114 +1,85 @@
-import { useRef, useState } from "react";
-import {
-  View,
-  DrawerLayoutAndroid,
-  StatusBar,
-  ScrollView,
-  Text,
-  StyleSheet,
-} from "react-native";
-import { Header, Button, Separator } from "./components";
-import {
-  LotsOfStyles,
-  FixedDimensionsBasics,
-  FlexDimensionsBasics,
-  PercentageDimensionsBasics,
-  FlexBasic,
-  FlexDirectionBasics,
-  JustifyContentBasics,
-  AlignItemsLayout,
-  WidthHeightBasics,
-  PositionLayout,
-  DisplayAnImageWithStyle,
-  NativeBaseBasic,
-  GlueStackUIBasic,
-} from "./screens";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { NavigationContainer } from "@react-navigation/native";
+import { NativeBaseProvider, Text } from "native-base";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Home from "./screens/home";
+import Video from "./screens/video.js";
+import Profile from "./screens/profile.js";
+import ForYou from "./screens/for-you.js";
+import NewsDetail from "./screens/news-detail";
 
+// Navigator Declaration
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
-// Functional Component
-const App = () => {
-  // State Declaration
-  const [page, setPage] = useState("Lots Of Styles");
-  // Ref Declaration
-  const drawer = useRef(null);
-  // Array of Object Declaration
-  const pageArr = [
-    { name: "Lots Of Styles", comp: <LotsOfStyles /> },
-    { name: "Fixed Dimensions Basics", comp: <FixedDimensionsBasics /> },
-    { name: "Flex Dimensions Basics", comp: <FlexDimensionsBasics /> },
-    {
-      name: "Percentage Dimensions Basics",
-      comp: <PercentageDimensionsBasics />,
-    },
-    { name: "Flex Basic", comp: <FlexBasic /> },
-    { name: "Flex Direction Basics", comp: <FlexDirectionBasics /> },
-    { name: "Justify Content Basics", comp: <JustifyContentBasics /> },
-    { name: "Align Items Layout", comp: <AlignItemsLayout /> },
-    { name: "Width Height Basics", comp: <WidthHeightBasics /> },
-    { name: "Position Layout", comp: <PositionLayout /> },
-    { name: "Display An Image With Style", comp: <DisplayAnImageWithStyle /> },
-    { name: "Native Base Basic", comp: <NativeBaseBasic /> },
-    { name: "Gluestack UI Basic", comp: <GlueStackUIBasic /> },
-  ];
-  // Ref Declaration
-  const content = useRef(pageArr[0]);
+const noHead = { headerShown: false };
 
-  // Find in Array of Object
-  content.current = pageArr.find((item) => item.name == page);
-
-  // Arrow Function inside Functional Component
-  const changePage = (drawer, pageName) => {
-    // Close Drawer
-    drawer.current.closeDrawer();
-    // Change state value
-    setPage(pageName);
-  };
-
-  // Arrow Function inside Functional Component
-  const navigationView = () => (
-    <ScrollView style={styles.drawer}>
-      <Text style={styles.textMenus}>MENUS:</Text>
-      {/* Looping with map() */}
-      {pageArr.map((item, index) => {
-        return (
-          <View key={index}>
-            <Button
-              text={item.name}
-              onPress={() => changePage(drawer, item.name)}
-            />
-            <Separator height={10} />
-          </View>
-        );
-      })}
-      <Button text="Close" onPress={() => drawer.current.closeDrawer()} />
-      <Separator height={30} />
-    </ScrollView>
-  );
-
+const Tabs = () => {
   return (
-    <DrawerLayoutAndroid
-      ref={drawer}
-      drawerWidth={300}
-      drawerPosition="left"
-      renderNavigationView={navigationView}
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color }) => {
+          let iconName;
+          switch (route.name) {
+            case "Home":
+              iconName = "home-outline";
+              break;
+            case "For You":
+              iconName = "document-text-outline";
+              break;
+            case "Video":
+              iconName = "videocam-outline";
+              break;
+            case "Profile":
+              iconName = "person-circle-outline";
+              break;
+          }
+          return (
+            <Ionicons
+              name={iconName}
+              size={28}
+              color={focused ? "black" : color}
+            />
+          );
+        },
+        tabBarIconStyle: { marginTop: 5 },
+        tabBarStyle: {
+          height: 70,
+          borderTopWidth: 0,
+        },
+        tabBarLabel: ({ children, color, focused }) => {
+          return (
+            <Text color={focused ? "black" : color} mb={2}>
+              {children}
+            </Text>
+          );
+        },
+      })}
     >
-      <StatusBar style="light" backgroundColor="#AA0002" />
-      <View style={{ flex: 1 }}>
-        <Header drawer={drawer} />
-        {content.current.comp}
-      </View>
-    </DrawerLayoutAndroid>
+      <Tab.Screen name="Home" component={Home} options={noHead} />
+      <Tab.Screen name="For You" component={ForYou} options={noHead} />
+      <Tab.Screen name="Video" component={Video} options={noHead} />
+      <Tab.Screen name="Profile" component={Profile} options={noHead} />
+    </Tab.Navigator>
   );
 };
 
-const styles = StyleSheet.create({
-  drawer: { padding: 10, backgroundColor: "#222222", flex: 1 },
-  textMenus: {
-    color: "white",
-    fontSize: 12,
-    marginBottom: 10,
-    fontWeight: "900",
-  },
-});
+const App = () => {
+  return (
+    <NativeBaseProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Tabs" component={Tabs} options={noHead} />
+          <Stack.Screen
+            name="News Detail"
+            component={NewsDetail}
+            options={noHead}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </NativeBaseProvider>
+  );
+};
 
 export default App;
